@@ -19,6 +19,7 @@ class UpdateState(StatesGroup):
     district = State()
     kargo = State()
     exact_address = State()
+    description = State()
 
 class AdminCheckState(StatesGroup):
     start = State()

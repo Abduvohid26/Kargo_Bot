@@ -57,6 +57,20 @@ async def update_kargo(call: types.CallbackQuery, state: FSMContext):
     await call.message.answer("Haqiqattan ham qo'shishni xoxlaysizmi ?", reply_markup=check_add_auto())
     await state.set_state(UpdateState.kargo)
 
+@dp.callback_query(F.data == "update_additional_info", UpdateState.choose_field)
+async def update_additional_info(call: types.CallbackQuery, state: FSMContext):
+    await call.answer(cache_time=60)
+    await call.message.answer("Qo'shimcha ma'lumot kiriting:")
+    await state.set_state(UpdateState.description)
+
+
+@dp.message(F.text, UpdateState.description)
+async def exact_address(message: types.Message, state: FSMContext):
+    new_name = message.text
+    db.update_user_field(telegram_id=message.from_user.id, field="description", value=new_name)
+    await message.answer("Qoshimcha Malumot muvaffaqiyatli yangilandi!", reply_markup=client_button())
+    await state.clear()
+
 
 @dp.message(F.text, UpdateState.name)
 async def save_name(message: types.Message, state: FSMContext):
@@ -72,6 +86,7 @@ async def save_phone(message: types.Message, state: FSMContext):
     db.update_user_field(telegram_id=message.from_user.id, field="phone_number", value=new_phone)
     await message.answer("Telefon raqamingiz muvaffaqiyatli yangilandi!", reply_markup=client_button())
     await state.clear()
+
 
 
 @dp.callback_query(lambda query: query.data.startswith('region_'), UpdateState.address)

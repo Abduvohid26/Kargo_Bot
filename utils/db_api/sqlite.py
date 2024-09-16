@@ -186,7 +186,7 @@ class Database:
     def update_user_field(self, telegram_id, field, value):
         # Ensure that only valid fields are updated to prevent SQL injection
         valid_fields = {"fullname", "phone_number", "manzil", "kargo", "tuman", "sj_avia", "saja", "is_staff",
-                        "exact_address", "add_user", "updated_at"}  # Add other valid fields as needed
+                        "exact_address", "add_user", "updated_at", "description"}  # Add other valid fields as needed
         if field not in valid_fields:
             raise ValueError(f"Invalid field: {field}")
 
