@@ -1,6 +1,0 @@
-
-
-
-
-
-print("sacsdvf dfv".capitalize())

@@ -25,6 +25,7 @@ def update_options(sj, js):
     btn = InlineKeyboardBuilder()
     btn.button(text="📌 Ism va Familya", callback_data="update_name")
     btn.button(text=js, callback_data="update_phone")
+    btn.button(text="📝 Qoshimcha Ma'lumotni", callback_data="update_additional_info")
     btn.button(text="🖼 Manzilni", callback_data="update_address")
     btn.button(text=sj, callback_data="update_kargo")
     btn.adjust(2)

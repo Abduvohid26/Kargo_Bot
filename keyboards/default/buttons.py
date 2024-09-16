@@ -20,7 +20,7 @@ def client_button():
     btn.button(text='📄 Ma\'lumotlarim')
     btn.button(text='☎️ Aloqa')
     btn.button(text='📬 Buyurtmalarim')
-    btn.button(text='➕ Buyurtma qo\'shish')
+    btn.button(text='➕ Buyurtma berish')
     btn.adjust(2)
     return btn.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
@@ -66,6 +66,7 @@ def year_button():
     btn = ReplyKeyboardBuilder()
     btn.button(text="2024")
     btn.button(text="2025")
+    btn.button(text="◀️ Orqaga")
     btn.adjust(2)
     return btn.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
@@ -83,6 +84,7 @@ def month_buttons():
     btn.button(text="Oktyabr")
     btn.button(text="Noyabr")
     btn.button(text="Dekabr")
+    btn.button(text="◀️ Orqaga")
     btn.adjust(2)
     return btn.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
@@ -92,6 +94,7 @@ def status_buttons():
     btn.button(text="To'langan")
     btn.button(text="To'lanmagan")
     btn.button(text="Barchasi")
+    btn.button(text="◀️ Orqaga")
     btn.adjust(2)
     return btn.as_markup(resize_keyboard=True, one_time_keyboard=True)
 

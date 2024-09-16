@@ -1,5 +1,5 @@
 import os.path
-from loader import bot, db, dp, tashkent_time
+from loader import db, dp, tashkent_time
 from aiogram.filters import Command
 from aiogram import types, F
 from filters.admin_filter import Admin
@@ -8,7 +8,6 @@ from keyboards.inline.buttons import check_admin, admin_delete, check_admin_dele
 import pandas as pd
 from states.my_state import AdminCheckState, AdminDelete, AdminAdd
 from aiogram.fsm.context import FSMContext
-import logging
 @dp.message(Command('admin'), Admin())
 async def admin_bot(message: types.Message):
     await message.answer("🔝 Admin Panel", reply_markup=admin_button())
@@ -38,16 +37,17 @@ async def users_list(message: types.Message):
             "Aniq Manzil": user[11],
             "Qoshimcha Mal'lumot": user[12],
             "User ID": user[13],
+            "Qo'shilgan vaqt": user[-2],
         }
 
         if user[5]:
             user_info["Phone Number"] = user[5]
 
         if user[7]:
-            user_info["Saja"] = user[7]
+            user_info["SAJA"] = user[7] if user[7] else None
 
         if user[8]:
-            user_info["Saja"] = user[8]
+            user_info["SAJA Avia"] = user[8] if user[8] else None
 
         users_data.append(user_info)
 
@@ -81,7 +81,7 @@ async def get_admin_list(message: types.Message, state: FSMContext):
         admin_list += (f"Ism Familyasi: {full_name}\n"
                        f"ID: {id}\n\n")
 
-    text = f"Adminlar Ro'yxati:\n\n{admin_list}"
+    text = f"👤 Adminlar Ro'yxati:\n\n{admin_list}"
     await message.answer(text=text, reply_markup=check_admin())
     await state.set_state(AdminCheckState.start)
 
@@ -98,26 +98,38 @@ async def verify_admin(message: types.Message, state: FSMContext):
     user_exists = db.select_user(saja=f"SAJA-{user_data}")
     user_data_exists = db.select_user(sj_avia=f"SJ-avia-{user_data}")
 
-    if user_exists:
-        telegram_id = user_exists[2]
-        fish = user_exists[1]
-        id = f'SAJA-{user_exists[7][-3:]}' if user_exists[7] else f'SAJA-{user_exists[8][-3:]}'
-        await message.answer(text=f"Ism Familyasi: {fish}\nID: {id}", reply_markup=admin_delete())
-        await state.update_data({"telegram_id": telegram_id, "saja": id, 'fish': fish})
-        await state.set_state(AdminDelete.start)
-
-    elif user_data_exists:
-        telegram_id = user_data_exists[2]
-        fish = user_data_exists[1]
-        id = f'SAJA-{user_data_exists[7][-3:]}' if user_data_exists[7] else f'SAJA-{user_data_exists[8][-3:]}'
-        await message.answer(text=f"Ism Familyasi: {fish}\nID: {id}", reply_markup=admin_delete())
-        await state.update_data({"telegram_id": telegram_id, "saja": id, 'fish': fish})
+    if user_exists or user_data_exists:
+        user_info = user_exists if user_exists else user_data_exists
+        telegram_id = user_info[2]
+        fish = user_info[1]
+        phone_number = user_info[4] if user_info[4] else "Telefon raqam kiritilmagan"
+        region = user_info[6] if user_info[6] else "Viloyat kiritilmagan"
+        district = user_info[7] if user_info[7] else "Tuman kiritilmagan"
+        exact_address = user_info[11] if user_info[11] else "Manzil kiritilmagan"
+        saja_id = f'SAJA-{user_info[7][-3:]}' if user_info[7] else f'SAJA-{user_info[8][-3:]}'
+        await message.answer(
+            text=f"Ism Familyasi: {fish}\n"
+                 f"ID: {saja_id}\n"
+                 f"Telefon raqami: {phone_number}\n"
+                 f"Viloyat: {region}\n"
+                 f"Tuman: {district}\n"
+                 f"Aniq manzil: {exact_address}",
+            reply_markup=admin_delete()
+        )
+        await state.update_data({
+            "telegram_id": telegram_id,
+            "saja": saja_id,
+            "fish": fish,
+            "phone_number": phone_number,
+            "region": region,
+            "district": district,
+            "exact_address": exact_address
+        })
         await state.set_state(AdminDelete.start)
 
     else:
         await message.answer(f"Ushbu ID: {message.text} bo'yicha ma'lumot topilmadi!!!")
-
-    await state.set_state(AdminDelete.start)
+        await state.set_state(AdminDelete.start)
 
 @dp.callback_query(lambda query: query.data == 'delete_admin', AdminDelete.start)
 async def admin_deletes(call: types.CallbackQuery, state: FSMContext):

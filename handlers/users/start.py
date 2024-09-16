@@ -214,3 +214,48 @@ async def user_orders(message: types.Message):
         await message.answer("Buyurtmalaringiz:\n\n" + "".join(order_list))
     else:
         await message.answer("Sizda hech qanday buyurtma mavjud emas.")
+
+@dp.message(F.text == '☎️ Aloqa')
+async def get_call(message: types.Message):
+    text = """
+    Aloqa Bo'limi
+    Biz bilan aloqa qilish juda oson! Sizning fikr-mulohazalaringiz va 
+    savollaringiz biz uchun muhimdir. Iltimos, quyidagi shaklni 
+    to'ldiring yoki bizga bevosita telefon orqali murojaat qiling. Biz 
+    sizning so'rovlaringizga tezda javob berishga harakat qilamiz.
+    
+    Maqsadimiz — sizga yaxshiroq xizmat ko‘rsatish va sizning 
+    ehtiyojlaringizni qondirishdir. Har qanday savol yoki takliflaringiz 
+    bo‘lsa, biz bilan bog‘laning!
+    Biz bilan bog‘lanish:
+    
+    Sizni kutyapmiz!
+    """
+    await message.answer(text=text)
+
+
+@dp.message(F.text == '➕ Buyurtma berish')
+async def get_call(message: types.Message):
+    text = """
+    Buyurtma Berish Bo'limi
+    Sizning ehtiyojlaringizni qondirish uchun bizda qulay buyurtma 
+    berish tizimi mavjud. Mahsulotlarimizni tanlash va buyurtma 
+    berish jarayoni juda oson va tezkor.
+
+    Qanday qilib buyurtma berish mumkin:
+
+    Mahsulotlar ro'yxatini ko'ring: Bizning mahsulotlarimizni ko'rib 
+    chiqing va sizni qiziqtirgan narsalarni tanlang.
+    Buyurtma shaklini to'ldiring: Tanlangan mahsulotlaringizni
+    qo'shing va buyurtma shaklini to'ldiring.
+    To'lovni amalga oshiring: Tizimda ko'rsatilgan to'lov 
+    variantlaridan birini tanlab to'lovni amalga oshiring.
+    Tasdiqlash: Buyurtmangiz muvaffaqiyatli berilgach, tasdiqlovchi 
+    xat olasiz.
+    Agar savollaringiz bo'lsa, biz bilan bog'lanishdan tortinmang. 
+    Biz sizning buyurtmangizni tez va sifatli bajarishga harakat 
+    qilamiz.
+    """
+    await message.answer(text=text)
+
+
