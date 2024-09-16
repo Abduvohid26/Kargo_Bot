@@ -309,7 +309,7 @@ async def check_user_by_phone(message: types.Message, state: FSMContext):
         await state.set_state(AdminAdd.confirm)
     else:
         await message.answer("Foydalanuvchi topilmadi. Iltimos, telefon raqamini tekshiring.")
-        await state.finish()
+        await state.clear()
 
 
 @dp.callback_query(lambda query: query.data in ["ha", "yoq"], AdminAdd.confirm)

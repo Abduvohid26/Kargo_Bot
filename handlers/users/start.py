@@ -206,10 +206,11 @@ async def user_orders(message: types.Message):
         order_list = []
         for order in orders:
             order_list.append(
-                f"Buyurtma ID: {order[0]}\n"
+                f"Buyurtma ID: {order[-1]}\n"
+                f"Clinet ID: {order[1]}"
                 f"Buyurtma miqdori: {order[2]}\n"
                 f"Narxi: {order[5]}\n"
-                f"Status: {'To\'langan' if order[6] == 1 else 'To\'lanmagan'}\n\n"
+                f"Status: {'🟩 To\'langan' if order[6] == 1 else '🟧 To\'lanmagan'}\n\n"
             )
         await message.answer("Buyurtmalaringiz:\n\n" + "".join(order_list))
     else:
