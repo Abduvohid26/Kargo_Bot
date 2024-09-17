@@ -7,8 +7,9 @@ from keyboards.default.buttons import client_button
 from states.my_state import UpdateState
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 import random
+from filters.admin_filter import Admin, Member
 
-@dp.message(F.text == "🔄 Ma'lumotlarni Yangilash")
+@dp.message(F.text == "🔄 Ma'lumotlarni Yangilash", Member())
 async def update_info(message: types.Message, state: FSMContext):
     user_data = db.select_user(telegram_id=message.from_user.id)
     js = ""
@@ -29,6 +30,10 @@ async def update_info(message: types.Message, state: FSMContext):
     )
     await state.set_state(UpdateState.choose_field)
 
+@dp.message(F.text == '◀️ Ortga', Member())
+async def get_back(message: types.Message, state: FSMContext):
+    await message.answer("🎛 Asosiy Menu", reply_markup=client_button())
+    await state.clear()
 
 @dp.callback_query(F.data == "update_name", UpdateState.choose_field)
 async def update_name(call: types.CallbackQuery, state: FSMContext):

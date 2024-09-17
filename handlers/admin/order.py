@@ -4,17 +4,18 @@ from aiogram import types, F
 from states.my_state import AddOrderState
 from aiogram.fsm.context import FSMContext
 from keyboards.inline.buttons import CheckOrderPay, check_order_pay_button, check_order_button, CheckOrder
+from filters.admin_filter import Admin
 import asyncio
 import os
 import random
 SAVE_DIRECTORY = 'media'
-@dp.message(F.text == '📬 Buyurtma Qo\'shish')
+@dp.message(F.text == '📬 Buyurtma Qo\'shish', Admin())
 async def add_order_page(message: types.Message, state: FSMContext):
     await message.answer(text='📬 Buyurtma rasmini kiriting:')
     await state.set_state(AddOrderState.image)
 
 
-@dp.message(F.photo, AddOrderState.image)
+@dp.message(F.photo, AddOrderState.image, Admin())
 async def get_qty(message: types.Message, state: FSMContext):
     photo = message.photo[-1]
     file = await bot.get_file(file_id=photo.file_id)
@@ -28,7 +29,7 @@ async def get_qty(message: types.Message, state: FSMContext):
     await state.set_state(AddOrderState.qty)
 
 
-@dp.message(F.text, AddOrderState.qty)
+@dp.message(F.text, AddOrderState.qty, Admin())
 async def get_client_id(message: types.Message, state: FSMContext):
     qty = message.text
     await state.update_data({'qty': qty})
@@ -36,7 +37,7 @@ async def get_client_id(message: types.Message, state: FSMContext):
     await state.set_state(AddOrderState.client_id)
 
 
-@dp.message(F.text, AddOrderState.client_id)
+@dp.message(F.text, AddOrderState.client_id, Admin())
 async def get_price(message: types.Message, state: FSMContext):
     client_id = message.text
     await state.update_data({'client_id': client_id})
@@ -44,7 +45,7 @@ async def get_price(message: types.Message, state: FSMContext):
     await state.set_state(AddOrderState.price)
 
 
-@dp.message(F.text, AddOrderState.price)
+@dp.message(F.text, AddOrderState.price, Admin())
 async def get_kg(message: types.Message, state: FSMContext):
     price = message.text
     await state.update_data({'price': price})
@@ -52,7 +53,7 @@ async def get_kg(message: types.Message, state: FSMContext):
     await state.set_state(AddOrderState.kg)
 
 
-@dp.message(F.text, AddOrderState.kg)
+@dp.message(F.text, AddOrderState.kg, Admin())
 async def get_hajm(message: types.Message, state: FSMContext):
     kg = message.text
     await state.update_data({'kg': kg})
@@ -60,7 +61,7 @@ async def get_hajm(message: types.Message, state: FSMContext):
     await state.set_state(AddOrderState.hajm)
 
 
-@dp.message(F.text, AddOrderState.hajm)
+@dp.message(F.text, AddOrderState.hajm, Admin())
 async def get_reiz_number(message: types.Message, state: FSMContext):
     hajm = message.text
     await state.update_data({'hajm': hajm})
@@ -68,7 +69,7 @@ async def get_reiz_number(message: types.Message, state: FSMContext):
     await state.set_state(AddOrderState.reiz_number)
 
 
-@dp.message(F.text, AddOrderState.reiz_number)
+@dp.message(F.text, AddOrderState.reiz_number, Admin())
 async def get_status(message: types.Message, state: FSMContext):
     reiz_number = message.text
     await state.update_data({'reiz_number': reiz_number})
@@ -76,7 +77,7 @@ async def get_status(message: types.Message, state: FSMContext):
     await state.set_state(AddOrderState.status)
 
 
-@dp.callback_query(CheckOrderPay.filter(), AddOrderState.status)
+@dp.callback_query(CheckOrderPay.filter(), AddOrderState.status, Admin())
 async def enter_check(call: types.CallbackQuery, callback_data: CheckOrderPay, state: FSMContext):
     check = callback_data.check
     value = 0
@@ -102,7 +103,7 @@ async def enter_check(call: types.CallbackQuery, callback_data: CheckOrderPay, s
     await state.set_state(AddOrderState.check)
 
 
-@dp.callback_query(CheckOrder.filter(), AddOrderState.check)
+@dp.callback_query(CheckOrder.filter(), AddOrderState.check, Admin())
 async def final(call: types.CallbackQuery, callback_data: CheckOrder, state: FSMContext):
     check = callback_data.check
     await call.answer(cache_time=60)

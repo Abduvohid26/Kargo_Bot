@@ -34,6 +34,8 @@ def get_phone_number_button():
 def update_button():
     btn = ReplyKeyboardBuilder()
     btn.button(text="🔄 Ma'lumotlarni Yangilash")
+    btn.button(text="◀️ Ortga")
+    btn.adjust(1)
     return btn.as_markup(resize_keyboard=True, one_time_keyboard=True)
 
 def skip_button():

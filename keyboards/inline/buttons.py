@@ -131,7 +131,7 @@ def check_order_pay_change_button():
 
 def check_admin_add_button():
     btn = InlineKeyboardBuilder()
-    btn.button(text="Ha", callback_data="ha")
-    btn.button(text="Yo'q", callback_data="yoq")
+    btn.button(text="✅ Ha", callback_data="ha")
+    btn.button(text="❌ Yo'q", callback_data="yoq")
     btn.adjust()
     return btn.as_markup()

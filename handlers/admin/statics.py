@@ -2,37 +2,34 @@ from loader import bot, db, dp
 from aiogram import types, F
 from aiogram.fsm.context import FSMContext
 from states.my_state import OrderFilterStatus
-from keyboards.inline.buttons import check_order_pay_change_button, CheckOrderChangePay
 from keyboards.default.buttons import year_button, month_buttons, status_buttons
-import pandas as pd
 from openpyxl import Workbook
-from io import BytesIO
-from datetime import datetime
 import os
 from openpyxl.drawing.image import Image  # Rasmlarni qo'shish uchun import
+from filters.admin_filter import Admin
 
 
-@dp.message(F.text == "📊 Statistika")
+@dp.message(F.text == "📊 Statistika", Admin())
 async def choose_year(message: types.Message, state: FSMContext):
     await message.answer("Yilni tanlang:", reply_markup=year_button())
     await state.set_state(OrderFilterStatus.year)
 
 
-@dp.message(F.text, OrderFilterStatus.year)
+@dp.message(F.text, OrderFilterStatus.year, Admin())
 async def choose_month(message: types.Message, state: FSMContext):
     year = message.text
     await state.update_data(year=year)
     await message.answer("Oyni tanlang:", reply_markup=month_buttons())
     await state.set_state(OrderFilterStatus.month)
 
-@dp.message(F.text, OrderFilterStatus.month)
+@dp.message(F.text, OrderFilterStatus.month, Admin())
 async def choose_status(message: types.Message, state: FSMContext):
     month = message.text
     await state.update_data(month=month)
     await message.answer("Buyurtma statusini tanlang:", reply_markup=status_buttons())
     await state.set_state(OrderFilterStatus.status)
 
-@dp.message(F.text, OrderFilterStatus.status)
+@dp.message(F.text, OrderFilterStatus.status, Admin())
 async def generate_report(message: types.Message, state: FSMContext):
     status = message.text
     data = await state.get_data()
@@ -53,7 +50,7 @@ async def generate_report(message: types.Message, state: FSMContext):
 
     # Sarlavhalarni qo'shish
     headers = ["ID", "Client ID", "Kg", "Hajm", "Buyurtmalar soni", "Narx", "Reys raqami", "Status",
-               "Buyurtma rasmi", "Yaratilgan vaqt", "O'zgartirilgan vaqt", "Admin qilingan vaqt", "Yangilagan Admin ID si"]
+               "Buyurtma rasmi", "Yaratilgan vaqt", "O'zgartirilgan vaqt", "Admin qilingan vaqt", "Yangilagan Admin ID si", "Order ID"]
     ws.append(headers)
 
     for idx, order in enumerate(orders, start=2):
@@ -84,7 +81,8 @@ async def generate_report(message: types.Message, state: FSMContext):
             order[9],   # Yaratilgan vaqt (Created at)
             order[10],  # O'zgartirilgan vaqt (Updated at)
             created_admin_id,  # Admin qo'shgan
-            updated_admin_id   # Admin yangilagan
+            updated_admin_id,   # Admin yangilagan
+            order[-1]
         ]
 
         ws.append(row_data)
