@@ -13,8 +13,11 @@ async def get_id(message: types.Message, state: FSMContext):
 
 @dp.message(F.text, OrderChangeStatus.start)
 async def start_change(message: types.Message, state: FSMContext):
-    order_id = message.text
-    data = db.select_order(order_id=order_id)
+    input_data = message.text
+    if input_data.isdigit():
+        data = db.select_order(order_id=input_data)
+    else:
+        data = db.select_order(client_id=input_data)
 
     if data:
         await message.answer(f"Buyurtma ma'lumotlari:\n"
@@ -26,7 +29,7 @@ async def start_change(message: types.Message, state: FSMContext):
                              f"Reys raqami: {data[6]}\n"
                              f"Narx: {data[5]}\n"
                              f"""Status: {"🟩 To'langan" if data[7] else "🟧 To'lanmagan"}""")
-        await state.update_data({"id": order_id})
+        await state.update_data({"id": data[-1]})
         await message.answer("📬 Buyurtma statusini tanlang:", reply_markup=check_order_pay_change_button())
         await state.set_state(OrderChangeStatus.final)
     else:

@@ -23,7 +23,7 @@ async def users_list(message: types.Message):
     data = db.get_users_by_activation_status(is_staff=False)
 
     if not data:
-        await message.answer(f"Hozirda userlar malumoti mavjud emas !!!")
+        await message.answer(f"Hozirda userlar ma'lumoti mavjud emas !!!")
         return
 
     users_data = []
@@ -35,19 +35,15 @@ async def users_list(message: types.Message):
             "Manzil": user[6],
             "Tuman": user[9],
             "Aniq Manzil": user[11],
-            "Qoshimcha Mal'lumot": user[12],
+            "Qoshimcha Ma'lumot": user[12],
             "User ID": user[13],
             "Qo'shilgan vaqt": user[-2],
         }
 
-        if user[5]:
-            user_info["Phone Number"] = user[5]
+        user_info["Phone Number"] = user[5] if user[5] else None
 
-        if user[7]:
-            user_info["SAJA"] = user[7] if user[7] else None
-
-        if user[8]:
-            user_info["SAJA Avia"] = user[8] if user[8] else None
+        user_info["SAJA"] = user[7] if user[7] else None
+        user_info["SAJA Avia"] = user[8] if user[8] else None
 
         users_data.append(user_info)
 
@@ -104,18 +100,41 @@ async def verify_admin(message: types.Message, state: FSMContext):
         fish = user_info[1]
         phone_number = user_info[4] if user_info[4] else "Telefon raqam kiritilmagan"
         region = user_info[6] if user_info[6] else "Viloyat kiritilmagan"
-        district = user_info[7] if user_info[7] else "Tuman kiritilmagan"
+        district = user_info[9] if user_info[9] else "Tuman kiritilmagan"
         exact_address = user_info[11] if user_info[11] else "Manzil kiritilmagan"
+        qoshimcha_malumot = user_info[12] if user_info[12] else "Qoshimcha Malumot Kiritilmagan"
         saja_id = f'SAJA-{user_info[7][-3:]}' if user_info[7] else f'SAJA-{user_info[8][-3:]}'
+        add_user = user_info[14] if user_info[14] else "Developer tomonidan yaratilgan"
+        cur_user = db.select_user(telegram_id=add_user)
+        if cur_user:
+            cur_fish = cur_user[1] if cur_user[1] else "Ism Familyasi mavjud emas"
+            cur_phone_number = cur_user[4] if cur_user[4] else "Telefon raqam kiritilmagan"
+            cur_region = cur_user[6] if cur_user[6] else "Viloyat kiritilmagan"
+            cur_district = cur_user[9] if cur_user[9] else "Tuman kiritilmagan"
+            cur_exact_address = cur_user[11] if cur_user[11] else "Manzil kiritilmagan"
+            cur_saja_id = f'SAJA-{cur_user[7][-3:]}' if cur_user[7] else f'SAJA-{cur_user[8][-3:]}'
+            qoshimcha_malumot_cure = cur_user[12] if cur_user[12] else "Qoshimcha Malumot Kiritilmagan"
+        else:
+            cur_fish = cur_phone_number = cur_region = cur_district = cur_exact_address = cur_saja_id = "Ma'lumot mavjud emas"
         await message.answer(
             text=f"Ism Familyasi: {fish}\n"
                  f"ID: {saja_id}\n"
                  f"Telefon raqami: {phone_number}\n"
                  f"Viloyat: {region}\n"
                  f"Tuman: {district}\n"
-                 f"Aniq manzil: {exact_address}",
-            reply_markup=admin_delete()
-        )
+                 f"Aniq manzil: {exact_address}\n"
+                 f"Qo'shimcha ma'lumot: {qoshimcha_malumot}\n\n" 
+                 f"Quyidagi admin tomonidan qo'shilgan:\n"
+                 f"Ism Familyasi: {cur_fish}\n"
+                 f"ID: {cur_saja_id}\n"
+                 f"Telefon raqami: {cur_phone_number}\n"
+                 f"Viloyat: {cur_region}\n"
+                 f"Tuman: {cur_district}\n"
+                 f"Aniq manzil: {cur_exact_address}"
+                f"Qo'shimcha ma'lumot: {qoshimcha_malumot_cure}",
+
+        reply_markup=admin_delete()
+    )
         await state.update_data({
             "telegram_id": telegram_id,
             "saja": saja_id,
@@ -146,26 +165,48 @@ async def admin_final_delete(call: types.CallbackQuery, callback_data: CheckAdmi
     saja = data['saja']
     fish = data['fish']
 
-    user_data_exists = db.select_user(telegram_id=call.from_user.id)
-    id = f'SAJA-{user_data_exists[7][-3:]}' if user_data_exists[7] else f'SAJA-{user_data_exists[8][-3:]}'
-    full_name = user_data_exists[1]
+    # O'chirilayotgan foydalanuvchining ma'lumotlarini olish
+    user_data_exists = db.select_user(telegram_id=telegram_id)
+    admin_data_exists = db.select_user(telegram_id=call.from_user.id)
+
+    user_id = f'SAJA-{user_data_exists[7][-3:]}' if user_data_exists[7] else f'SAJA-{user_data_exists[8][-3:]}'
+    user_full_name = user_data_exists[1]
+    user_address = f'{user_data_exists[6]}, {user_data_exists[9]}'  # Foydalanuvchi manzili
+    user_phone = user_data_exists[4]  # Foydalanuvchi telefon raqami
+    user_extra_info = user_data_exists[9]  # Foydalanuvchi qo'shimcha ma'lumot
+    delete_time = tashkent_time.strftime("%Y-%m-%d %H:%M:%S")  # Operatsiya vaqti
+
+    # O'chiruvchi adminning ma'lumotlari
+    admin_id = f'SAJA-{admin_data_exists[7][-3:]}' if admin_data_exists[7] else f'SAJA-{admin_data_exists[8][-3:]}'
+    admin_full_name = admin_data_exists[1]  # Admin ism familyasi
+    admin_address = f'{admin_data_exists[6]}, {admin_data_exists[9]}'  # Admin manzili
+    admin_phone = admin_data_exists[4]  # Admin telefon raqami
+    admin_extra_info = admin_data_exists[9]  # Admin qo'shimcha ma'lumot
     await call.answer(cache_time=60)
 
     if check:
+        # Foydalanuvchini adminlikdan chiqarish
         db.update_user_field(telegram_id=telegram_id, field="is_staff", value=0)
         db.update_user_field(telegram_id=telegram_id, field="updated_at", value=tashkent_time)
-        time = user_data_exists[-1]
+
         await call.message.answer(
-            text=f"Admin o'chirildi !!!\n"
-                 f"ID: {saja}\n"
-                 f"Ism Familya: {fish}\n"
-                 f"Quyidagi admin tomonidan o'chirildi\n"
-                 f"ID: {id}\n"
-                 f"Ism Familya: {full_name}\n"
-                 f"Operatsiya Vaqti: {time}"
+            text=f"❌ Admin muvaffaqiyatli o'chirildi:\n\n"
+                 f"📋 **O'chirilgan foydalanuvchi ma'lumotlari:**\n"
+                 f"ID: {user_id}\n"
+                 f"Ism Familya: {user_full_name}\n"
+                 f"Manzil: {user_address}\n"
+                 f"Telefon raqami: {user_phone}\n"
+                 f"Qo'shimcha ma'lumot: {user_extra_info}\n\n"
+                 f"🔧 **Operatsiyani amalga oshirgan admin ma'lumotlari:**\n"
+                 f"Admin ID: {admin_id}\n"
+                 f"Ism Familya: {admin_full_name}\n"
+                 f"Manzil: {admin_address}\n"
+                 f"Telefon raqami: {admin_phone}\n"
+                 f"Qo'shimcha ma'lumot: {admin_extra_info}\n"
+                 f"Operatsiya vaqti: {delete_time}"
         )
     else:
-        await call.message.answer("O'chirish bekor qilindi")
+        await call.message.answer("❌ O'chirish bekor qilindi")
 
     await state.clear()
 
@@ -326,6 +367,7 @@ async def confirm_admin_add(call: types.CallbackQuery, state: FSMContext):
     if response == "ha":
         db.update_user_field(telegram_id=telegram_id, field="is_staff", value=1)
         db.update_user_field(telegram_id=telegram_id, field="updated_at", value=tashkent_time)
+        db.update_user_field(telegram_id=telegram_id, field="add_user", value=call.from_user.id)
 
         await call.message.answer(
             f"Admin muvaffaqiyatli qo'shildi:\n"

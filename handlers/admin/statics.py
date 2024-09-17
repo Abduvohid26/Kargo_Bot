@@ -32,7 +32,6 @@ async def choose_status(message: types.Message, state: FSMContext):
     await message.answer("Buyurtma statusini tanlang:", reply_markup=status_buttons())
     await state.set_state(OrderFilterStatus.status)
 
-
 @dp.message(F.text, OrderFilterStatus.status)
 async def generate_report(message: types.Message, state: FSMContext):
     status = message.text
@@ -53,8 +52,8 @@ async def generate_report(message: types.Message, state: FSMContext):
     ws.title = "Buyurtmalar"
 
     # Sarlavhalarni qo'shish
-    headers = ["Buyurtma ID", "Client ID", "Buyurtmalar soni", "Kg", "Hajm", "Reys raqami", "Narx", "Status",
-               "Buyurtma rasmi", "Yaratilgan vaqt", "O'zgartirilgan vaqt", "Admin Yaratilgan vaqt", "Admin qilingan vaqt"]
+    headers = ["ID", "Client ID", "Kg", "Hajm", "Buyurtmalar soni", "Narx", "Reys raqami", "Status",
+               "Buyurtma rasmi", "Yaratilgan vaqt", "O'zgartirilgan vaqt", "Admin qilingan vaqt", "Yangilagan Admin ID si"]
     ws.append(headers)
 
     for idx, order in enumerate(orders, start=2):
@@ -72,22 +71,32 @@ async def generate_report(message: types.Message, state: FSMContext):
             created_admin_id = "Noma'lum"
             updated_admin_id = "Noma'lum"
 
-        row_data = list(order) + [
-            "",
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            created_admin_id,
-            updated_admin_id
+        row_data = [
+            order[0],   # ID
+            order[1],   # Client ID
+            order[2],   # Kg
+            order[3],   # Hajm
+            order[4],   # Buyurtmalar soni (Qty)
+            order[5],   # Narx (Price)
+            order[6],   # Reys raqami (Reiz number)
+            "🟩 To'langan" if order[7] else "🟧 To'lanmagan",  # Status
+            "",         # Buyurtma rasmi (qo'shiladi keyinchalik)
+            order[9],   # Yaratilgan vaqt (Created at)
+            order[10],  # O'zgartirilgan vaqt (Updated at)
+            created_admin_id,  # Admin qo'shgan
+            updated_admin_id   # Admin yangilagan
         ]
+
         ws.append(row_data)
+
         image_path = order[8]
         if os.path.exists(image_path):
             img = Image(image_path)
             img.width = 40
             img.height = 40
-            ws.add_image(img, f"H{idx}")
+            ws.add_image(img, f"I{idx}")
         else:
-            ws[f"H{idx}"] = "Rasm mavjud emas"
+            ws[f"I{idx}"] = "Rasm mavjud emas"
 
     file_name = f'{year}-{month}-{file_status}.xlsx'
     file_path = file_name

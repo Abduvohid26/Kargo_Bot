@@ -123,7 +123,7 @@ async def final(call: types.CallbackQuery, callback_data: CheckOrder, state: FSM
                      image=image, order_id=user_ids)
 
         await call.message.answer(f"Buyurtma muvaffaqiyatli qo'shildi:\n"
-                                  f"Buyurtma ID: {user_ids}"
+                                  f"Buyurtma ID: {user_ids}\n"
                                   f"Client ID: {client_id}\n"
                                   f"Buyurtmalar soni: {qty}\n"
                                   f"Kg: {kg}\n"
