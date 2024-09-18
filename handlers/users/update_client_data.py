@@ -156,11 +156,8 @@ async def save_address(message: types.Message, state: FSMContext):
 async def save_kargo(call: types.CallbackQuery, state: FSMContext, callback_data: CheckAuto):
     await call.answer(cache_time=60)
     check = callback_data.check
-
     if check:
         user = db.select_user(telegram_id=call.from_user.id)
-
-        # Random son yaratish va mavjudligini tekshirish
         while True:
             s = random.randint(100, 999)
             saja_value = f"SAJA-{s}"
@@ -179,5 +176,4 @@ async def save_kargo(call: types.CallbackQuery, state: FSMContext, callback_data
         await call.message.answer("Yangi tur muvaffaqiyatli qo'shildi!", reply_markup=client_button())
     else:
         await call.message.answer("Qo'shish bekor qilindi", reply_markup=client_button())
-
     await state.clear()

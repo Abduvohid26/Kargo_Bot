@@ -34,7 +34,7 @@ def update_options(sj, js):
 def get_unique_region_names():
     region_data = db.select_all_address()
     unique_region_names = list(set(region[-1] for region in region_data))
-    return unique_region_names[:12]
+    return unique_region_names[:14]
 
 def region_button():
     region_names = get_unique_region_names()

@@ -16,3 +16,10 @@ class Member(Filter):
             return True
         return False
 
+
+class AdminMember(Filter):
+    async def __call__(self, message: types.Message) -> bool:
+        user = db.select_user(is_staff=True, telegram_id=message.from_user.id)
+        if user:
+            return False
+        return True

@@ -130,7 +130,7 @@ async def verify_admin(message: types.Message, state: FSMContext):
                  f"Telefon raqami: {cur_phone_number}\n"
                  f"Viloyat: {cur_region}\n"
                  f"Tuman: {cur_district}\n"
-                 f"Aniq manzil: {cur_exact_address}"
+                 f"Aniq manzil: {cur_exact_address}\n"
                 f"Qo'shimcha ma'lumot: {qoshimcha_malumot_cure}",
 
         reply_markup=admin_delete()
@@ -296,7 +296,7 @@ async def confirm_admin_add(call: types.CallbackQuery, state: FSMContext):
         selected_region = selected_user[6] if selected_user[6] else 'N/A'
         selected_district = selected_user[7] if selected_user[7] else 'N/A'
         selected_address = selected_user[11] if selected_user[11] else 'N/A'
-        selected_created_at = selected_user[12] if selected_user[12] else 'N/A'
+        selected_created_at = selected_user[-2] if selected_user[-2] else 'N/A'
     else:
         selected_fullname = 'N/A'
         selected_phone_number = 'N/A'
@@ -313,7 +313,7 @@ async def confirm_admin_add(call: types.CallbackQuery, state: FSMContext):
         current_region = current_user[6] if current_user[6] else 'N/A'
         current_district = current_user[7] if current_user[7] else 'N/A'
         current_address = current_user[11] if current_user[11] else 'N/A'
-        current_created_at = current_user[12] if current_user[12] else 'N/A'
+        current_created_at = current_user[-2] if current_user[-2] else 'N/A'
     else:
         current_fullname = 'N/A'
         current_user_id = 'N/A'

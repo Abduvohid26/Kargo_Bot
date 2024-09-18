@@ -18,7 +18,11 @@ async def start_change(message: types.Message, state: FSMContext):
     if input_data.isdigit():
         data = db.select_order(order_id=input_data)
     else:
-        data = db.select_order(client_id=input_data)
+        x = input_data[-3:]
+        if db.select_order(client_id=f'SAJA-{x}'):
+            data = db.select_order(client_id=f'SAJA-{x}')
+        else:
+            data = db.select_order(client_id=f'SJ-avia-{x}')
 
     if data:
         await message.answer(f"Buyurtma ma'lumotlari:\n"
@@ -39,11 +43,11 @@ async def start_change(message: types.Message, state: FSMContext):
 
 @dp.callback_query(CheckOrderChangePay.filter(), OrderChangeStatus.final, Admin())
 async def final(call: types.CallbackQuery, callback_data: CheckOrderChangePay, state: FSMContext):
+    await call.answer(cache_time=60)
     check = callback_data.check
     data = await state.get_data()
     order_id = data['id']
 
-    # O'zgartirgan foydalanuvchining ma'lumotlarini olish
     admin_data_exists = db.select_user(telegram_id=call.from_user.id)
 
     if admin_data_exists:
@@ -103,7 +107,5 @@ async def final(call: types.CallbackQuery, callback_data: CheckOrderChangePay, s
                               f"Telefon raqami: {admin_phone}\n"
                               f"Qo'shimcha ma'lumot: {admin_extra_info}\n"
                               f"Operatsiya vaqti: {change_time}")
-
-
     await state.clear()
     await call.message.delete()

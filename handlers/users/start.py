@@ -10,10 +10,10 @@ import uuid
 import random
 import asyncio
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from filters.admin_filter import Admin, Member
+from filters.admin_filter import Admin, Member, AdminMember
 
 
-@dp.message(CommandStart(), Member())
+@dp.message(CommandStart(), AdminMember())
 async def start_bot(message: types.Message):
     if db.select_user(telegram_id=message.from_user.id):
         await message.answer(f"Assalamu Aleykum {message.from_user.full_name}", reply_markup=client_button())
@@ -27,14 +27,14 @@ async def start_admin_bot(message: types.Message):
                              f" Botimizga xush kelibsiz", reply_markup=admin_button())
 
 
-@dp.callback_query(lambda query: query.data.startswith('register'), Member())
+@dp.callback_query(lambda query: query.data.startswith('register'))
 async def get_name(call: types.CallbackQuery, state: FSMContext):
     await call.message.answer("Ism va Familyangizni kiriting:")
     await call.answer(cache_time=60)
     await state.set_state(Register.name)
 
 
-@dp.message(F.text, Register.name, Member())
+@dp.message(F.text, Register.name)
 async def get_phone(msg: types.Message, state: FSMContext):
     name = msg.text
     await state.update_data({"name": name})
@@ -42,7 +42,7 @@ async def get_phone(msg: types.Message, state: FSMContext):
     await state.set_state(Register.phone)
 
 
-@dp.message(F.contact, Register.phone, Member())
+@dp.message(F.contact, Register.phone)
 async def get_contact(message: types.Message, state: FSMContext):
     if message.contact and message.contact.phone_number:
         phone = message.contact.phone_number
@@ -54,7 +54,7 @@ async def get_contact(message: types.Message, state: FSMContext):
         await message.answer("Telefon raqamini ulashishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.")
 
 
-@dp.message(F.text, Register.phone_number, Member())
+@dp.message(F.text, Register.phone_number)
 async def get_address(msg: types.Message, state: FSMContext):
     phone_number = msg.text
     if phone_number == "◀️ O'tkazib Yuborish":
@@ -64,11 +64,10 @@ async def get_address(msg: types.Message, state: FSMContext):
     await state.set_state(Register.address)
 
 
-@dp.callback_query(lambda query: query.data.startswith('region_'), Register.address, Member())
+@dp.callback_query(lambda query: query.data.startswith('region_'), Register.address)
 async def get_districts(call: types.CallbackQuery, state: FSMContext):
     region_name = call.data.split('_')[-1].capitalize()
     data = db.select_address(region_name=region_name)
-
     if not data:
         await call.answer("Region topilmadi.")
         return
@@ -85,7 +84,7 @@ async def get_districts(call: types.CallbackQuery, state: FSMContext):
     await call.message.edit_text("Tumanlarni tanlang:", reply_markup=btn.as_markup())
     await state.set_state(Register.district)
 
-@dp.callback_query(lambda query: query.data.startswith('district_'), Register.district, Member())
+@dp.callback_query(lambda query: query.data.startswith('district_'), Register.district)
 async def get_exact_address(call: types.CallbackQuery, state: FSMContext):
     district_name = call.data.split('_')[-1]
     await state.update_data({"district": district_name})
@@ -94,7 +93,7 @@ async def get_exact_address(call: types.CallbackQuery, state: FSMContext):
                               f"Masalan {district_name} Alisher N kochasi 17 uy")
     await state.set_state(Register.exact_address)
 
-@dp.message(F.text, Register.exact_address, Member())
+@dp.message(F.text, Register.exact_address)
 async def get_kargo(message: types.Message, state: FSMContext):
     exact_address = message.text
     await state.update_data(
@@ -106,7 +105,7 @@ async def get_kargo(message: types.Message, state: FSMContext):
     await state.set_state(Register.Kargo)
 
 
-@dp.message(F.text.in_(['🚚 Auto', '✈️ Avia']), Register.Kargo, Member())
+@dp.message(F.text.in_(['🚚 Auto', '✈️ Avia']), Register.Kargo)
 async def get_description(msg: types.Message, state: FSMContext):
     kargo = msg.text
     await state.update_data({"kargo": kargo})
@@ -114,7 +113,7 @@ async def get_description(msg: types.Message, state: FSMContext):
     await state.set_state(Register.description)
 
 
-@dp.message(F.text, Register.description, Member())
+@dp.message(F.text, Register.description)
 async def final(msg: types.Message, state: FSMContext):
     description = msg.text
     await state.update_data({"description": description})
@@ -136,7 +135,7 @@ async def final(msg: types.Message, state: FSMContext):
     await state.set_state(Register.check)
 
 
-@dp.callback_query(CheckCall.filter(), Register.check, Member())
+@dp.callback_query(CheckCall.filter(), Register.check)
 async def check_data(call: types.CallbackQuery, callback_data: CheckCall, state: FSMContext):
     check = callback_data.check
     await call.answer(cache_time=60)
@@ -194,34 +193,44 @@ async def check_data(call: types.CallbackQuery, callback_data: CheckCall, state:
 @dp.message(F.text == '📬 Buyurtmalarim', Member())
 async def user_orders(message: types.Message):
     user_data = db.select_user(telegram_id=message.from_user.id)
-    print(user_data)
+    print("User Data:", user_data)
+
     if not user_data:
         await message.answer("Foydalanuvchi topilmadi.")
         return
 
     saja_id = user_data[7]
     saja_id1 = user_data[6]
+
     if saja_id1:
-        orders = db.select_orders_by_saja_id(saja_id=f'SAJA-{saja_id[-3:]}')
+        saja_id_str = 'SAJA-{}'.format(saja_id[-3:])
+        orders = db.select_orders_by_saja_id(saja_id=saja_id_str)
     elif saja_id:
-        orders = db.select_orders_by_saja_id(saja_id=f'SJ-avia-{saja_id1[-3:]}')
-
-
-
+        saja_id_str = 'SJ-avia-{}'.format(saja_id1[-3:])
+        orders = db.select_orders_by_saja_id(saja_id=saja_id_str)
+    else:
+        orders = []
 
     if orders:
         order_list = []
         for order in orders:
             order_list.append(
-                f"Buyurtma ID: {order[-1]}\n"
-                f"Clinet ID: {order[1]}"
-                f"Buyurtma miqdori: {order[2]}\n"
-                f"Narxi: {order[5]}\n"
-                f"Status: {'🟩 To\'langan' if order[6] == 1 else '🟧 To\'lanmagan'}\n\n"
+                "Buyurtma ID: {}\n"
+                "Client ID: {}\n"
+                "Buyurtma miqdori: {}\n"
+                "Narxi: {}\n"
+                "Status: {}\n\n".format(
+                    order[-1],
+                    order[1],
+                    order[2],
+                    order[5],
+                    '🟩 To\'langan' if order[6] == 1 else '🟧 To\'lanmagan'
+                )
             )
         await message.answer("Buyurtmalaringiz:\n\n" + "".join(order_list))
     else:
-        await message.answer("Sizda hech qanday buyurtma mavjud emas.")
+        await message.answer("❌ Sizda hech qanday buyurtma mavjud emas.")
+
 
 @dp.message(F.text == '☎️ Aloqa', Member())
 async def get_call(message: types.Message):

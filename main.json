@@ -2,7 +2,7 @@
   "regions": [
     {
       "id": 4,
-      "name": "Qoraqalpog‘iston Respublikasi",
+      "name": "Qoraqalpog‘iston respublikasi",
       "districts": [
         {"id": 45, "name": "Nukus tumani"},
         {"id": 46, "name": "Nukus shaxri"},
@@ -235,24 +235,19 @@
     {"id": 201, "name": "Yunusobod"}
   ]
 },
-      {
-  "id": 14,
-  "name": "Samarqand viloyati",
-  "districts": [
-    {"id": 165, "name": "Bulung‘ur"},
-    {"id": 166, "name": "Ishtixon"},
-    {"id": 167, "name": "Jomboy"},
-    {"id": 168, "name": "Kattaqo‘rg‘on"},
-    {"id": 169, "name": "Qo‘shrabot"},
-    {"id": 170, "name": "Narpay"},
-    {"id": 171, "name": "Oqdaryo"},
-    {"id": 172, "name": "Payariq"},
-    {"id": 173, "name": "Pastdarg‘om"},
-    {"id": 174, "name": "Paxtachi"},
-    {"id": 175, "name": "Samarqand tumani"},
-    {"id": 176, "name": "Toyloq"},
-    {"id": 177, "name": "Urgut"}
-  ]
-}
+    {
+    "id": 15,
+    "name": "Sirdaryo viloyati",
+    "districts": [
+      {"id": 178, "name": "Boyovut"},
+      {"id": 179, "name": "Guliston tumani"},
+      {"id": 180, "name": "Mirzaobod"},
+      {"id": 181, "name": "Oqoltin"},
+      {"id": 182, "name": "Sayxunobod"},
+      {"id": 183, "name": "Sardoba"},
+      {"id": 184, "name": "Sirdaryo tumani"},
+      {"id": 185, "name": "Xovos"}
+    ]
+  }
   ]
 }
