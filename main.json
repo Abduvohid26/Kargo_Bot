@@ -18,7 +18,8 @@
         {"id": 56, "name": "Shumanay"},
         {"id": 57, "name": "Taxiatosh"},
         {"id": 58, "name": "Taxtako‘pir"},
-        {"id": 59, "name": "Xo‘jayli"}
+        {"id": 59, "name": "Xo‘jayli"},
+        {"id": 210, "name": "Bozatov"}
       ]
     },
     {
@@ -38,7 +39,9 @@
         {"id": 70, "name": "Paxtaobod"},
         {"id": 71, "name": "Shahrixon"},
         {"id": 72, "name": "Ulug‘nor"},
-        {"id": 73, "name": "Xo‘jaobod"}
+        {"id": 73, "name": "Xo‘jaobod"},
+        {"id": 204, "name": "Xonobod"},
+        {"id": 222, "name": "Xoldevonbek"}
       ]
     },
     {
@@ -75,7 +78,14 @@
         {"id": 95, "name": "So‘x"},
         {"id": 96, "name": "Toshloq"},
         {"id": 97, "name": "Uchko‘prik"},
-        {"id": 98, "name": "Yozyovon"}
+        {"id": 98, "name": "Yozyovon"},
+        {"id": 200, "name": "Marg'ilon"},
+        {"id": 201, "name": "Farg'ona tumani"},
+        {"id": 202, "name": "Buvayda"},
+        {"id": 203, "name": "O'zbekiston tumani"},
+        {"id": 206, "name":  "Qoshtepa"}
+
+
       ]
     },
     {
@@ -110,7 +120,8 @@
         {"id": 118, "name": "Xiva"},
         {"id": 119, "name": "Xonqa"},
         {"id": 120, "name": "Yangibozor"},
-        {"id": 121, "name": "Yangiariq"}
+        {"id": 121, "name": "Yangiariq"},
+        {"id": 221, "name":  "Tuproqqala"}
       ]
     },
     {
@@ -127,7 +138,8 @@
         {"id": 129, "name": "Pop"},
         {"id": 130, "name": "To‘raqo‘rg‘on"},
         {"id": 131, "name": "Uchqo‘rg‘on"},
-        {"id": 132, "name": "Yangiqo‘rg‘on"}
+        {"id": 132, "name": "Yangiqo‘rg‘on"},
+        {"id": 209, "name":  "Uychi"}
       ]
     },
     {
@@ -141,7 +153,9 @@
         {"id": 137, "name": "Nurota"},
         {"id": 138, "name": "Qiziltepa"},
         {"id": 139, "name": "Tomdi"},
-        {"id": 140, "name": "Uchquduq"}
+        {"id": 140, "name": "Uchquduq"},
+        {"id": 219, "name": "Zarafshon"},
+        {"id":  220, "name": "Xatirchi"}
       ]
     },
     {
@@ -159,7 +173,9 @@
         {"id": 149, "name": "Muborak"},
         {"id": 150, "name": "Nishon"},
         {"id": 151, "name": "Shahrisabz"},
-        {"id": 152, "name": "Yakkabog‘"}
+        {"id": 152, "name": "Yakkabog‘"},
+        {"id": 211, "name": "Qamashi"},
+        {"id": 218, "name": "Nurobod"}
       ]
     },
     {
@@ -177,7 +193,9 @@
         {"id": 161, "name": "Payariq"},
         {"id": 162, "name": "Qo‘shrabot"},
         {"id": 163, "name": "Toyloq"},
-        {"id": 164, "name": "Urgut"}
+        {"id": 164, "name": "Urgut"},
+        {"id": 216, "name": "Toyliq"},
+        {"id": 217, "name": "Paxtachi"}
       ]
     },
     {
@@ -195,7 +213,9 @@
         {"id": 173, "name": "Qumqo‘rg‘on"},
         {"id": 174, "name": "Sariosiyo"},
         {"id": 175, "name": "Sherobod"},
-        {"id": 176, "name": "Sho‘rchi"}
+        {"id": 176, "name": "Sho‘rchi"},
+        {"id": 207, "name":  "Uzun"},
+        {"id": 208, "name":  "Bandixon"}
       ]
     },
       {
@@ -215,7 +235,8 @@
     {"id": 187, "name": "Toshkent tumani"},
     {"id": 188, "name": "Yangiyo‘l"},
     {"id": 189, "name": "Yuqori Chirchiq"},
-    {"id": 190, "name": "Zangiota"}
+    {"id": 190, "name": "Zangiota"},
+    {"id": 205, "name":  "Bekobod"}
   ]
 },
 {
@@ -232,7 +253,13 @@
     {"id": 198, "name": "Shayxontohur"},
     {"id": 199, "name": "Yakkasaroy"},
     {"id": 200, "name": "Yashnobod"},
-    {"id": 201, "name": "Yunusobod"}
+    {"id": 201, "name": "Yunusobod"},
+    {"id": 202, "name": "Yangi Hayot"},
+    {"id": 212, "name": "Olmaliq"},
+    {"id": 213, "name": "Angren"},
+    {"id": 214, "name": "Oqqorgon"},
+    {"id": 215, "name":  "Bostonliq"}
+
   ]
 },
     {

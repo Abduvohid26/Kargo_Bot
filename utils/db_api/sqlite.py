@@ -186,7 +186,7 @@ class Database:
     def update_user_field(self, telegram_id, field, value):
         # Ensure that only valid fields are updated to prevent SQL injection
         valid_fields = {"fullname", "phone_number", "manzil", "kargo", "tuman", "sj_avia", "saja", "is_staff",
-                        "exact_address", "add_user", "updated_at", "description"}  # Add other valid fields as needed
+                        "exact_address", "add_user", "updated_at", "description", "telegram_id"}  # Add other valid fields as needed
         if field not in valid_fields:
             raise ValueError(f"Invalid field: {field}")
 
@@ -194,6 +194,17 @@ class Database:
         UPDATE Users SET {field}=? WHERE telegram_id=?
         """
         return self.execute(sql, parameters=(value, telegram_id), commit=True)
+
+    def update_user_field_phone(self, phone, field, value):
+        # Ensure that only valid fields are updated to prevent SQL injection
+        valid_fields = {"telegram_id"}  # Add other valid fields as needed
+        if field not in valid_fields:
+            raise ValueError(f"Invalid field: {field}")
+
+        sql = f"""
+        UPDATE Users SET {field}=? WHERE phone=?
+        """
+        return self.execute(sql, parameters=(value, phone), commit=True)
 
     def update_order_field(self, order_id, field, value):
         # Ensure that only valid fields are updated to prevent SQL injection
@@ -236,6 +247,10 @@ class Database:
     def get_users_by_activation_status(self, is_staff: bool):
         sql = "SELECT * FROM Users WHERE is_staff = ?"
         return self.execute(sql, (is_staff,), fetchall=True)
+
+    def get_users_by_activation_status1(self):
+        sql = "SELECT * FROM Users"
+        return self.execute(sql, fetchall=True)
 
     def select_orders_by_date(self, year: str, month: str):
         # Oyni raqam formatiga o'zgartiramiz

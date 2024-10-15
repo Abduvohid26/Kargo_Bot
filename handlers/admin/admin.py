@@ -21,7 +21,8 @@ async def get_admin_include(message: types.Message):
 
 @dp.message(F.text == '👤 Users List', Admin())
 async def users_list(message: types.Message):
-    data = db.get_users_by_activation_status(is_staff=False)
+    # data = db.get_users_by_activation_status()
+    data = db.get_users_by_activation_status1()
 
     if not data:
         await message.answer(f"Hozirda userlar ma'lumoti mavjud emas !!!")
@@ -39,6 +40,7 @@ async def users_list(message: types.Message):
             "Qoshimcha Ma'lumot": user[12],
             "User ID": user[13],
             "Qo'shilgan vaqt": user[-2],
+            "Telegram ID": user[2]
         }
 
         user_info["Phone Number"] = user[5] if user[5] else None
@@ -49,7 +51,7 @@ async def users_list(message: types.Message):
 
     df = pd.DataFrame(users_data)
 
-    file_path = "users_list.xlsx"
+    file_path = "users_lists.xlsx"
     df.to_excel(file_path, index=False)
 
     excel_file = types.input_file.FSInputFile(file_path)
@@ -88,6 +90,7 @@ async def ask_admin_id(call: types.CallbackQuery, state: FSMContext):
     await state.set_state(AdminCheckState.final)
     await call.answer()
 
+
 @dp.message(F.text, AdminCheckState.final, Admin())
 async def verify_admin(message: types.Message, state: FSMContext):
     user_data = message.text[-3:]
@@ -106,6 +109,10 @@ async def verify_admin(message: types.Message, state: FSMContext):
         saja_id = f'SAJA-{user_info[7][-3:]}' if user_info[7] else f'SAJA-{user_info[8][-3:]}'
         add_user = user_info[14] if user_info[14] else "Developer tomonidan yaratilgan"
         cur_user = db.select_user(telegram_id=add_user)
+
+        # `qoshimcha_malumot_cure` uchun boshlang'ich qiymat
+        qoshimcha_malumot_cure = "Qoshimcha Malumot Kiritilmagan"
+
         if cur_user:
             cur_fish = cur_user[1] if cur_user[1] else "Ism Familyasi mavjud emas"
             cur_phone_number = cur_user[4] if cur_user[4] else "Telefon raqam kiritilmagan"
@@ -116,6 +123,7 @@ async def verify_admin(message: types.Message, state: FSMContext):
             qoshimcha_malumot_cure = cur_user[12] if cur_user[12] else "Qoshimcha Malumot Kiritilmagan"
         else:
             cur_fish = cur_phone_number = cur_region = cur_district = cur_exact_address = cur_saja_id = "Ma'lumot mavjud emas"
+
         await message.answer(
             text=f"Ism Familyasi: {fish}\n"
                  f"ID: {saja_id}\n"
@@ -123,7 +131,7 @@ async def verify_admin(message: types.Message, state: FSMContext):
                  f"Viloyat: {region}\n"
                  f"Tuman: {district}\n"
                  f"Aniq manzil: {exact_address}\n"
-                 f"Qo'shimcha ma'lumot: {qoshimcha_malumot}\n\n" 
+                 f"Qo'shimcha ma'lumot: {qoshimcha_malumot}\n\n"
                  f"Quyidagi admin tomonidan qo'shilgan:\n"
                  f"Ism Familyasi: {cur_fish}\n"
                  f"ID: {cur_saja_id}\n"
@@ -131,10 +139,10 @@ async def verify_admin(message: types.Message, state: FSMContext):
                  f"Viloyat: {cur_region}\n"
                  f"Tuman: {cur_district}\n"
                  f"Aniq manzil: {cur_exact_address}\n"
-                f"Qo'shimcha ma'lumot: {qoshimcha_malumot_cure}",
+                 f"Qo'shimcha ma'lumot: {qoshimcha_malumot_cure}",
+            reply_markup=admin_delete()
+        )
 
-        reply_markup=admin_delete()
-    )
         await state.update_data({
             "telegram_id": telegram_id,
             "saja": saja_id,
@@ -145,10 +153,10 @@ async def verify_admin(message: types.Message, state: FSMContext):
             "exact_address": exact_address
         })
         await state.set_state(AdminDelete.start)
-
     else:
         await message.answer(f"Ushbu ID: {message.text} bo'yicha ma'lumot topilmadi!!!")
         await state.set_state(AdminDelete.start)
+
 
 @dp.callback_query(lambda query: query.data == 'delete_admin', AdminDelete.start, Admin())
 async def admin_deletes(call: types.CallbackQuery, state: FSMContext):
@@ -255,7 +263,7 @@ async def request_phone_number(message: types.Message, state: FSMContext):
 @dp.message(F.text, AdminAdd.enter_phone, Admin())
 async def check_user_by_phone(message: types.Message, state: FSMContext):
     phone_number = message.text.strip()
-
+    print(phone_number)
     user = db.get_user_by_phone(phone=phone_number)
 
     if user:

@@ -23,3 +23,12 @@ class AdminMember(Filter):
         if user:
             return False
         return True
+
+class CheckDatabase(Filter):
+    async def __call__(self, message: types.Message):
+        phone = message.contact.phone_number if message.contact else None
+        if phone:
+            user = db.select_user(phone=phone)
+            return bool(user)
+        return False
+

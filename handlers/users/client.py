@@ -17,7 +17,6 @@ async def get_client_data(message: types.Message):
     sj_avia = data[-9] if data[-9] else None
     description = data[-5]
     text = f"📑 Siznig  ma'lumotlaringiz\n"
-    text += f"👤 User ID: {user_id}\n"
     text += f"📌 Ism Familya: {name}\n"
     text += f"☎️ Telefon Raqam: {phone}\n"
     if phone_number is not None:

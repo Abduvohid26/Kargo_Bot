@@ -156,24 +156,28 @@ async def save_address(message: types.Message, state: FSMContext):
 async def save_kargo(call: types.CallbackQuery, state: FSMContext, callback_data: CheckAuto):
     await call.answer(cache_time=60)
     check = callback_data.check
+
     if check:
         user = db.select_user(telegram_id=call.from_user.id)
-        while True:
-            s = random.randint(100, 999)
-            saja_value = f"SAJA-{s}"
-            sj_avia_value = f"SJ-avia-{s}"
+        if not user:
+            await call.message.answer("Foydalanuvchi ma'lumotlari topilmadi", reply_markup=client_button())
+            await state.clear()
+            return
 
-            existing_saja = db.select_user_by_saja_value(saja_value)
-            existing_sj_avia = db.select_user_by_sj_avia_value(sj_avia_value)
+        saja_id = user[7]
+        saja_avia_id = user[8]
 
-            if not existing_saja and not existing_sj_avia:
-                break
+        three_saj = saja_id[-3:] if saja_id else None
+        three_saj_avia = saja_avia_id[-3:] if saja_avia_id else None
 
-        if user and user[-1]:
-            db.update_user_field(telegram_id=call.from_user.id, field="saja", value=saja_value)
+        if saja_id:
+            db.update_user_field(telegram_id=call.from_user.id, field="sj_avia", value=f'SJ-avia-{three_saj}')
+        else:
+            db.update_user_field(telegram_id=call.from_user.id, field="saja", value=f'SAJA-{three_saj_avia}')
 
-        db.update_user_field(telegram_id=call.from_user.id, field="sj_avia", value=sj_avia_value)
         await call.message.answer("Yangi tur muvaffaqiyatli qo'shildi!", reply_markup=client_button())
     else:
         await call.message.answer("Qo'shish bekor qilindi", reply_markup=client_button())
+
     await state.clear()
+

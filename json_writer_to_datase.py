@@ -58,3 +58,39 @@ def json_writer_to_database():
     except Exception as e:
         logging.error(f"Error during JSON import: {e}")
 
+
+import openpyxl
+
+
+# Excel faylidan o'qish va ma'lumotlarni ma'lumotlar bazasiga yozish
+def write_to_database():
+    print('salom')
+    file_name = 'users_list.xlsx'
+    if file_name:
+
+        # Excel faylini ochamiz
+        workbook = openpyxl.load_workbook(file_name)
+        sheet = workbook.active
+
+        # Har bir qatorni o'qiymiz, bosh qatorni tashlab
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            # Qator ma'lumotlarini o'zgaruvchilarga ajratib olamiz
+            fullname, phone, manzil, tuman, exact_address, description, user_id, added_time, phone_number, saja, sj_avia = row
+
+            # Ma'lumotlar bazasiga yozish
+            db.add_user(
+                id=user_id,  # ID ni user_id dan olamiz
+                fullname=fullname,
+                telegram_id=None,  # Telegram ID agar mavjud bo'lsa
+                language='uz',  # Default til
+                phone=phone,
+                phone_number=phone_number,
+                manzil=manzil,
+                saja=saja,
+                sj_avia=sj_avia,
+                tuman=tuman,
+                exact_address=exact_address,
+                description=description,
+                user_id=user_id
+            )
+    print("All user addd")

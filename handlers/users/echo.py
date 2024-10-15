@@ -6,6 +6,6 @@ from aiogram import html
 @dp.message(F.text, Member())
 async def echo_bot(message:types.Message):
     text = (f"Sizga qanday yordam kerak\n"
-            f"Admin Bilan Aloqa {html.link(value='Abduvohid', link='tg://user?id=816660001')}\n"
+            f"Admin Bilan Aloqa {html.link(value='Abdugani', link='tg://user?id=147737693')}\n"
             f"/start   /help")
     await message.answer(text=text)

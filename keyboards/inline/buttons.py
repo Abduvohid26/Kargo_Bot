@@ -34,7 +34,7 @@ def update_options(sj, js):
 def get_unique_region_names():
     region_data = db.select_all_address()
     unique_region_names = list(set(region[-1] for region in region_data))
-    return unique_region_names[:14]
+    return unique_region_names[:15]
 
 def region_button():
     region_names = get_unique_region_names()
@@ -133,5 +133,11 @@ def check_admin_add_button():
     btn = InlineKeyboardBuilder()
     btn.button(text="✅ Ha", callback_data="ha")
     btn.button(text="❌ Yo'q", callback_data="yoq")
-    btn.adjust()
+    btn.adjust(2)
+    return btn.as_markup()
+
+def prog():
+    btn = InlineKeyboardBuilder()
+    btn.button(text="✅ Programmalarga to'g'ri kiritish uchun na'munalar", callback_data="prog")
+    btn.adjust(2)
     return btn.as_markup()
