@@ -81,6 +81,7 @@ async def get_address(msg: types.Message, state: FSMContext):
 async def get_districts(call: types.CallbackQuery, state: FSMContext):
     region_name = call.data.split('_')[-1].capitalize()
     data = db.select_address(region_name=region_name)
+
     if not data:
         await call.answer("Region topilmadi.")
         return
@@ -94,8 +95,19 @@ async def get_districts(call: types.CallbackQuery, state: FSMContext):
 
     btn.adjust(2)
     await state.update_data({"region": region_name})
-    await call.message.edit_text("Tumanlarni tanlang:", reply_markup=btn.as_markup())
+
+    new_text = "Tumanlarni tanlang:"
+    current_text = call.message.text
+    current_reply_markup = call.message.reply_markup
+
+    # Yangi matnni va reply_markupni taqqoslang
+    if current_text != new_text or current_reply_markup != btn.as_markup():
+        await call.message.edit_text(new_text, reply_markup=btn.as_markup())
+    else:
+        print("Xabar matni va reply_markup bir xil; hech qanday harakat qilinmadi.")
+
     await state.set_state(Register.district)
+
 
 @dp.callback_query(lambda query: query.data.startswith('district_'), Register.district)
 async def get_exact_address(call: types.CallbackQuery, state: FSMContext):
@@ -210,38 +222,38 @@ async def check_data(call: types.CallbackQuery, callback_data: CheckCall, state:
             await call.message.answer(f"Hozirda userlar ma'lumoti mavjud emas !!!")
             return
 
-        users_data = []
-
-        for user in data:
-            user_info = {
-                "Ism Familyasi": user[1],
-                "Phone": user[4],
-                "Manzil": user[6],
-                "Tuman": user[9],
-                "Aniq Manzil": user[11],
-                "Qoshimcha Ma'lumot": user[12],
-                "User ID": user[13],
-                "Qo'shilgan vaqt": user[-2],
-                "Telegram ID": user[2]
-            }
-
-            user_info["Phone Number"] = user[5] if user[5] else None
-            user_info["SAJA"] = user[7] if user[7] else None
-            user_info["SAJA Avia"] = user[8] if user[8] else None
-
-            users_data.append(user_info)
-
-        df = pd.DataFrame(users_data)
-
-        file_path = "users_lists.xlsx"
-        df.to_excel(file_path, index=False)
-
-        excel_file = types.input_file.FSInputFile(file_path)
-        for i in SEO:
-            await bot.send_document(chat_id=i,document=excel_file, caption="Foydalanuvchilar ma'lumotlari Excel faylda")
-        await bot.send_document(chat_id=816660001, document=excel_file, caption="Foydalanuvchilar ma'lumotlari Excel faylda")
-        if os.path.isfile(file_path):
-            os.remove(file_path)
+        # users_data = []
+        #
+        # for user in data:
+        #     user_info = {
+        #         "Ism Familyasi": user[1],
+        #         "Phone": user[4],
+        #         "Manzil": user[6],
+        #         "Tuman": user[9],
+        #         "Aniq Manzil": user[11],
+        #         "Qoshimcha Ma'lumot": user[12],
+        #         "User ID": user[13],
+        #         "Qo'shilgan vaqt": user[-2],
+        #         "Telegram ID": user[2]
+        #     }
+        #
+        #     user_info["Phone Number"] = user[5] if user[5] else None
+        #     user_info["SAJA"] = user[7] if user[7] else None
+        #     user_info["SAJA Avia"] = user[8] if user[8] else None
+        #
+        #     users_data.append(user_info)
+        #
+        # df = pd.DataFrame(users_data)
+        #
+        # file_path = "users_lists.xlsx"
+        # df.to_excel(file_path, index=False)
+        #
+        # excel_file = types.input_file.FSInputFile(file_path)
+        # for i in SEO:
+        #     await bot.send_document(chat_id=i,document=excel_file, caption="Foydalanuvchilar ma'lumotlari Excel faylda")
+        # await bot.send_document(chat_id=816660001, document=excel_file, caption="Foydalanuvchilar ma'lumotlari Excel faylda")
+        # if os.path.isfile(file_path):
+        #     os.remove(file_path)
     else:
         await call.message.answer("Qaytadan ro'yxatdan o'ting\n"
                                   "/start")

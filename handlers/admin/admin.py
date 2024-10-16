@@ -5,7 +5,7 @@ from aiogram import types, F
 from filters.admin_filter import Admin
 from keyboards.default.buttons import admin_button, admin_include
 from keyboards.inline.buttons import check_admin, admin_delete, check_admin_delete, CheckAdminDelete, check_admin_add_button, admin_add_button
-import pandas as pd
+# import pandas as pd
 from states.my_state import AdminCheckState, AdminDelete, AdminAdd
 from aiogram.fsm.context import FSMContext
 from data.config import SEO
@@ -21,44 +21,45 @@ async def get_admin_include(message: types.Message):
 
 @dp.message(F.text == '👤 Users List', Admin())
 async def users_list(message: types.Message):
+    pass
     # data = db.get_users_by_activation_status()
-    data = db.get_users_by_activation_status1()
-
-    if not data:
-        await message.answer(f"Hozirda userlar ma'lumoti mavjud emas !!!")
-        return
-
-    users_data = []
-
-    for user in data:
-        user_info = {
-            "Ism Familyasi": user[1],
-            "Phone": user[4],
-            "Manzil": user[6],
-            "Tuman": user[9],
-            "Aniq Manzil": user[11],
-            "Qoshimcha Ma'lumot": user[12],
-            "User ID": user[13],
-            "Qo'shilgan vaqt": user[-2],
-            "Telegram ID": user[2]
-        }
-
-        user_info["Phone Number"] = user[5] if user[5] else None
-        user_info["SAJA"] = user[7] if user[7] else None
-        user_info["SAJA Avia"] = user[8] if user[8] else None
-
-        users_data.append(user_info)
-
-    df = pd.DataFrame(users_data)
-
-    file_path = "users_lists.xlsx"
-    df.to_excel(file_path, index=False)
-
-    excel_file = types.input_file.FSInputFile(file_path)
-
-    await message.answer_document(excel_file, caption="Foydalanuvchilar ma'lumotlari Excel faylda")
-    if os.path.isfile(file_path):
-        os.remove(file_path)
+    # data = db.get_users_by_activation_status1()
+    #
+    # if not data:
+    #     await message.answer(f"Hozirda userlar ma'lumoti mavjud emas !!!")
+    #     return
+    #
+    # users_data = []
+    #
+    # for user in data:
+    #     user_info = {
+    #         "Ism Familyasi": user[1],
+    #         "Phone": user[4],
+    #         "Manzil": user[6],
+    #         "Tuman": user[9],
+    #         "Aniq Manzil": user[11],
+    #         "Qoshimcha Ma'lumot": user[12],
+    #         "User ID": user[13],
+    #         "Qo'shilgan vaqt": user[-2],
+    #         "Telegram ID": user[2]
+    #     }
+    #
+    #     user_info["Phone Number"] = user[5] if user[5] else None
+    #     user_info["SAJA"] = user[7] if user[7] else None
+    #     user_info["SAJA Avia"] = user[8] if user[8] else None
+    #
+    #     users_data.append(user_info)
+    #
+    # df = pd.DataFrame(users_data)
+    #
+    # file_path = "users_lists.xlsx"
+    # df.to_excel(file_path, index=False)
+    #
+    # excel_file = types.input_file.FSInputFile(file_path)
+    #
+    # await message.answer_document(excel_file, caption="Foydalanuvchilar ma'lumotlari Excel faylda")
+    # if os.path.isfile(file_path):
+    #     os.remove(file_path)
 
 
 @dp.message(F.text == '⚙️ Admin List', Admin())
