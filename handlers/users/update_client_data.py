@@ -6,8 +6,7 @@ from keyboards.inline.buttons import update_options, region_button ,CheckAuto, c
 from keyboards.default.buttons import client_button
 from states.my_state import UpdateState
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-import random
-from filters.admin_filter import Admin, Member
+from filters.admin_filter import Member
 
 @dp.message(F.text == "🔄 Ma'lumotlarni Yangilash", Member())
 async def update_info(message: types.Message, state: FSMContext):

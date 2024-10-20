@@ -1,7 +1,7 @@
 from loader import bot, db
 import json
 import logging
-from json_writer_to_datase import json_writer_to_database  # Adjust with actual module name
+from json_writer_to_datase import json_writer_to_database, write_to_database
 import handlers, middlewares
 from loader import dp, bot, db
 from aiogram.types.bot_command_scope_all_private_chats import BotCommandScopeAllPrivateChats
@@ -25,7 +25,8 @@ async def main():
             db.create_table_users()
             db.create_table_address()
             db.create_table_orders()
-            # json_writer_to_database()
+            json_writer_to_database()
+            write_to_database()
             write_to_database()
         except Exception as e:
             logging.error(f"Error during table creation or data import: {e}")

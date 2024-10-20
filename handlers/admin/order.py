@@ -1,5 +1,5 @@
 from keyboards.default.buttons import admin_button
-from loader import bot, db, dp, tashkent_time, created_at, updated_at
+from loader import bot, db, dp, created_at, updated_at
 from aiogram import types, F
 from states.my_state import AddOrderState
 from aiogram.fsm.context import FSMContext

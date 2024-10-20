@@ -1,7 +1,7 @@
 from aiogram.filters import CommandStart
 from loader import dp, db, bot
 from aiogram import types, F
-from keyboards.default.buttons import start_button, kargo_type, client_button, get_phone_number_button, skip_button, \
+from keyboards.default.buttons import  kargo_type, client_button, get_phone_number_button, skip_button, \
     admin_button
 from aiogram.fsm.context import FSMContext
 from states.my_state import Register
@@ -12,10 +12,10 @@ import asyncio
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from filters.admin_filter import Admin, Member, AdminMember
 from aiogram.utils.media_group import MediaGroupBuilder
-import pandas as pd
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 import os
 from data.config import SEO
+import tablib
 
 
 def fix():
@@ -164,25 +164,26 @@ async def final(msg: types.Message, state: FSMContext):
 async def check_data(call: types.CallbackQuery, callback_data: CheckCall, state: FSMContext):
     check = callback_data.check
     await call.answer(cache_time=60)
+    print(check, 'check')
 
-    while True:
-        user_ids = random.randint(100000, 999999)
+    user_ids = random.randint(100000, 999999)
 
-        # Fayldan count o'qish
+    # Fayldan count o'qish
+    try:
         with open('count.txt', 'r') as file:
             count = int(file.read().strip())
+    except FileNotFoundError:
+        count = 1  # Fayl yo'q bo'lsa, 1 dan boshlaymiz
 
-        saja_value = f'SAJA-{count}'
-        sj_avia_value = f'SJ-avia-{count}'
-        existing_saja = db.select_user_by_saja_value(saja_value)
-        existing_sj_avia = db.select_user_by_sj_avia_value(sj_avia_value)
+    saja_value = f'SAJA-{count}'
+    sj_avia_value = f'SJ-avia-{count}'
+    existing_saja = db.select_user_by_saja_value(saja_value)
+    existing_sj_avia = db.select_user_by_sj_avia_value(sj_avia_value)
 
-        if not existing_saja and not existing_sj_avia:
-            if check:
-                new_count = count + 1
-                with open('count.txt', 'w') as file:
-                    file.write(str(new_count))
-            break
+    if not existing_saja and not existing_sj_avia and check:
+        new_count = count + 1
+        with open('count.txt', 'w') as file:
+            file.write(str(new_count))
 
     if check:
         data = await state.get_data()
@@ -216,51 +217,56 @@ async def check_data(call: types.CallbackQuery, callback_data: CheckCall, state:
             user_id=user_ids
         )
         await call.message.answer("Muvaffaqiyatli ro'yxatdan o'tdingiz 👏", reply_markup=client_button())
-        data = db.get_users_by_activation_status1()
 
+        # Foydalanuvchilarni olish
+        data = db.get_users_by_activation_status1()
         if not data:
             await call.message.answer(f"Hozirda userlar ma'lumoti mavjud emas !!!")
             return
 
-        # users_data = []
-        #
-        # for user in data:
-        #     user_info = {
-        #         "Ism Familyasi": user[1],
-        #         "Phone": user[4],
-        #         "Manzil": user[6],
-        #         "Tuman": user[9],
-        #         "Aniq Manzil": user[11],
-        #         "Qoshimcha Ma'lumot": user[12],
-        #         "User ID": user[13],
-        #         "Qo'shilgan vaqt": user[-2],
-        #         "Telegram ID": user[2]
-        #     }
-        #
-        #     user_info["Phone Number"] = user[5] if user[5] else None
-        #     user_info["SAJA"] = user[7] if user[7] else None
-        #     user_info["SAJA Avia"] = user[8] if user[8] else None
-        #
-        #     users_data.append(user_info)
-        #
-        # df = pd.DataFrame(users_data)
-        #
-        # file_path = "users_lists.xlsx"
-        # df.to_excel(file_path, index=False)
-        #
-        # excel_file = types.input_file.FSInputFile(file_path)
-        # for i in SEO:
-        #     await bot.send_document(chat_id=i,document=excel_file, caption="Foydalanuvchilar ma'lumotlari Excel faylda")
-        # await bot.send_document(chat_id=816660001, document=excel_file, caption="Foydalanuvchilar ma'lumotlari Excel faylda")
-        # if os.path.isfile(file_path):
-        #     os.remove(file_path)
+        # Excel fayl yaratish
+        headers = ['ID', 'Ism Familyasi', 'Telegram ID', 'Til', 'Phone', 'Phone Number', 'Manzil', 'SAJA', 'SJ Avia',
+                   'Tuman', 'Exact Address', 'Description', 'User ID', "Qo'shilgan vaqt"]
+        dataset = tablib.Dataset(headers=headers)
+
+        for user in data:
+            user_info = (
+                user[0],  # ID
+                user[1],  # Ism Familyasi
+                user[2],  # Telegram ID
+                user[3],  # Til
+                user[4],  # Phone
+                user[5],  # Phone Number
+                user[6],  # Manzil
+                user[7],  # SAJA
+                user[8],  # SJ Avia
+                user[9],  # Tuman
+                user[11],  # Exact Address
+                user[12],  # Description
+                user[13],  # User ID
+                user[-2],  # Qo'shilgan vaqt (created_at)
+            )
+            dataset.append(user_info)
+
+        excel_data = dataset.export('xlsx')
+
+        file_path = 'user_list.xlsx'
+        with open(file_path, 'wb') as f:
+            f.write(excel_data)
+
+        excel_file = types.input_file.FSInputFile(path=file_path, filename='user_list.xlsx')
+        await bot.send_document(chat_id=816660001, document=excel_file,
+                                    caption="Foydalanuvchilar ma'lumotlari Excel faylda")
+
+        if os.path.isfile(file_path):
+            os.remove(file_path)
     else:
-        await call.message.answer("Qaytadan ro'yxatdan o'ting\n"
-                                  "/start")
+        await call.message.answer("Qaytadan ro'yxatdan o'ting\n/start")
         await call.message.delete()
 
     await asyncio.sleep(5)
     await state.clear()
+
 
 @dp.message(F.text == '📬 Buyurtmalarim', Member())
 async def user_orders(message: types.Message):

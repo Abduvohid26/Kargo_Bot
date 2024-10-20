@@ -1,7 +1,7 @@
 from loader import bot, db
 import json
 import logging
-
+import random
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -59,38 +59,55 @@ def json_writer_to_database():
         logging.error(f"Error during JSON import: {e}")
 
 
-# import openpyxl
-#
-#
-# # Excel faylidan o'qish va ma'lumotlarni ma'lumotlar bazasiga yozish
-# def write_to_database():
-#     print('salom')
-#     file_name = 'users_list.xlsx'
-#     if file_name:
-#
-#         # Excel faylini ochamiz
-#         workbook = openpyxl.load_workbook(file_name)
-#         sheet = workbook.active
-#
-#         # Har bir qatorni o'qiymiz, bosh qatorni tashlab
-#         for row in sheet.iter_rows(min_row=2, values_only=True):
-#             # Qator ma'lumotlarini o'zgaruvchilarga ajratib olamiz
-#             fullname, phone, manzil, tuman, exact_address, description, user_id, added_time, phone_number, saja, sj_avia = row
-#
-#             # Ma'lumotlar bazasiga yozish
-#             db.add_user(
-#                 id=user_id,  # ID ni user_id dan olamiz
-#                 fullname=fullname,
-#                 telegram_id=None,  # Telegram ID agar mavjud bo'lsa
-#                 language='uz',  # Default til
-#                 phone=phone,
-#                 phone_number=phone_number,
-#                 manzil=manzil,
-#                 saja=saja,
-#                 sj_avia=sj_avia,
-#                 tuman=tuman,
-#                 exact_address=exact_address,
-#                 description=description,
-#                 user_id=user_id
-#             )
-#     print("All user addd")
+import tablib
+
+def write_to_database():
+    print('Salom')
+    file_name = 'users_list.xlsx'
+
+    if file_name:
+        # Excel faylini tablib yordamida yuklaymiz
+        with open(file_name, 'rb') as f:
+            data = tablib.Dataset().load(f.read(), format='xlsx')
+
+        # Har bir qatorni o'qiymiz, bosh qatorni tashlab
+        for idx, row in enumerate(data, start=2):
+            row = list(row)  # Tuple ni list ga aylantiramiz
+
+            # Qatorning uzunligini tekshiramiz, yetishmayotgan bo'lsa default qiymat
+            if len(row) < 14:  # 14 ta ustun bo'lishi kerak
+                row += [None] * (14 - len(row))  # Yetishmagan qiymatlarni `None` bilan to'ldirish
+
+            # Qator ma'lumotlarini o'zgaruvchilarga ajratib olamiz
+            try:
+                user_id, fullname, telegram_id, language, phone, phone_number, manzil, saja, sj_avia, tuman, exact_address, description, user_db_id, added_time = row[:14]
+            except ValueError as e:
+                print(f"Error unpacking row {idx}: {e}")
+                continue
+
+            # Foydalanuvchi bazada mavjudligini tekshirish
+            existing_user = db.select_user(id=user_id)
+
+            if existing_user:
+                print(f"Foydalanuvchi allaqachon mavjud: {user_id}")
+                # Agar foydalanuvchi mavjud bo'lsa, uni yangilash yoki o'tkazib yuborishingiz mumkin.
+                continue
+
+            # Ma'lumotlar bazasiga yozish
+            db.add_user(
+                id=user_id,
+                fullname=fullname,
+                telegram_id=telegram_id,
+                language=language,
+                phone=phone,
+                phone_number=phone_number,
+                manzil=manzil,
+                saja=saja,
+                sj_avia=sj_avia,
+                tuman=tuman,
+                exact_address=exact_address,
+                description=description,
+                user_id=user_db_id  # user_db_id ni user_id dan farq qiladi.
+            )
+
+    print("All users added")
