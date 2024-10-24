@@ -164,29 +164,25 @@ async def final(msg: types.Message, state: FSMContext):
 async def check_data(call: types.CallbackQuery, callback_data: CheckCall, state: FSMContext):
     check = callback_data.check
     await call.answer(cache_time=60)
-    print(check, 'check')
-
     user_ids = random.randint(100000, 999999)
 
     # Fayldan count o'qish
     try:
         with open('count.txt', 'r') as file:
             count = int(file.read().strip())
-    except FileNotFoundError:
-        count = 1  # Fayl yo'q bo'lsa, 1 dan boshlaymiz
+    except (FileNotFoundError, ValueError):
+        count = 1
 
-    saja_value = f'SAJA-{count}'
-    sj_avia_value = f'SJ-avia-{count}'
-    existing_saja = db.select_user_by_saja_value(saja_value)
-    existing_sj_avia = db.select_user_by_sj_avia_value(sj_avia_value)
+    # Foydalanuvchi tanlagan kargo turini olish
+    data = await state.get_data()
+    kargo = data['kargo']
 
-    if not existing_saja and not existing_sj_avia and check:
-        new_count = count + 1
-        with open('count.txt', 'w') as file:
-            file.write(str(new_count))
+    # Har bir kargo turi uchun alohida qiymatlar yaratish
+    saja_value = f'SAJA-{count}' if kargo == '🚚 Auto' else None
+    sj_avia_value = f'SJ-avia-{count}' if kargo == '✈️ Avia' else None
 
+    # Foydalanuvchi muvaffaqiyatli ro'yxatdan o'tsa, count oshiriladi
     if check:
-        data = await state.get_data()
         user_id = str(uuid.uuid4())
         fullname = data['name']
         telegram_id = call.from_user.id
@@ -195,12 +191,10 @@ async def check_data(call: types.CallbackQuery, callback_data: CheckCall, state:
         phone_number = data['phone_number']
         manzil = data['region']
         tuman = data['district']
-        kargo = data['kargo']
         exact_address = data['exact_address']
         description = data['description']
-        saja = saja_value if kargo == '🚚 Auto' else None
-        sj_avia = sj_avia_value if kargo == '✈️ Avia' else None
 
+        # Ma'lumotlarni bazaga saqlash
         db.add_user(
             id=user_id,
             fullname=fullname,
@@ -210,13 +204,21 @@ async def check_data(call: types.CallbackQuery, callback_data: CheckCall, state:
             phone_number=phone_number,
             manzil=manzil,
             tuman=tuman,
-            saja=saja,
-            sj_avia=sj_avia,
+            saja=saja_value,
+            sj_avia=sj_avia_value,
             exact_address=exact_address,
             description=description,
             user_id=user_ids
         )
+
+        # Fayldagi count qiymatini oshirish va yangilash
+        new_count = count + 1
+        with open('count.txt', 'w') as file:
+            file.write(str(new_count))
+
+        # Muvaffaqiyatli xabar
         await call.message.answer("Muvaffaqiyatli ro'yxatdan o'tdingiz 👏", reply_markup=client_button())
+
 
         # Foydalanuvchilarni olish
         data = db.get_users_by_activation_status1()
